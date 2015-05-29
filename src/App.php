@@ -12,12 +12,14 @@ class App
 	public $env = 'dev';
 	private $conf;
 	public $req;
+	public $user;
 
 	public function __construct($env = 'dev')
 	{
-		$this->env = 'dev';
+		$this->env = $env;
 		$this->conf = require_once APP_DIR . 'config_' . $this->env . '.php';
 		$this->req = new Request();
+		$this->user = User::getUser($this->req);
 	}
 
 	public function setRequest(Request $request)
@@ -53,9 +55,9 @@ class App
 	}
 
 	private function checkAccess($module, $controller){
-		pe($this->conf['access']);
-		if(!empty($this->conf['access'][$module][$controller])){
-
+		if(!empty($this->conf['access'][$module][$controller])
+			&& !$this->user->hasRole($this->conf['access'][$module][$controller])){
+			throw new Exception(Exception::TYPE_NOACCESS);
 		}
 		return true;
 	}
@@ -69,11 +71,20 @@ class App
 			$module = empty($params['module'])?'':('\\'.ucfirst($params['module']));
 			$controller = ucfirst($params['controller']);
 			$class = "Yagrysha\\MVC\\Controller$module\\{$controller}Controller";
-
+//todo
 			$controller = new $class($this);
-			$controller->run();
+			$controller->run($params);
 		}catch (Exception $e){
 			$e->process($this);
 		}
+	}
+
+	public function controller($params){
+		$module = empty($params['module'])?'':('\\'.ucfirst($params['module']));
+		$controller = ucfirst($params['controller']);
+		$class = "Yagrysha\\MVC\\Controller$module\\{$controller}Controller";
+		$controller = new $class($this);
+		$controller->run($params);
+		//todo;
 	}
 }

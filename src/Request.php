@@ -11,14 +11,19 @@ class Request
 	public function __construct($uri = '', $params = [])
 	{
 		if (empty($uri)) {
-			$this->uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-		}else{
+			$this->uri = $this->server('REQUEST_URI', '');
+		} else {
 			$this->uri = $uri;
 		}
-		$this->ip = (!empty($_SERVER["HTTP_X_FORWARDED_FOR"]) ? $_SERVER["HTTP_X_FORWARDED_FOR"] :
-			(!empty($_SERVER["HTTP_X_REAL_IP"]) ? $_SERVER["HTTP_X_REAL_IP"] : (isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : '')));
+		$this->ip = empty($_SERVER["HTTP_X_FORWARDED_FOR"]) ?
+			(empty($_SERVER["HTTP_X_REAL_IP"]) ? $this->server('REMOTE_ADDR', ''): $_SERVER["HTTP_X_REAL_IP"])
+			:$_SERVER["HTTP_X_FORWARDED_FOR"];
+
 		if (!empty($params)) {
 			$this->setParams($params);
+		}
+		if(!isset($_SESSION)){
+			session_start();
 		}
 	}
 
@@ -31,14 +36,6 @@ class Request
 				return $_GET[$key];
 			case isset($_POST[$key]):
 				return $_POST[$key];
-			/*case isset($_COOKIE[$key]):
-				return $_COOKIE[$key];
-			case ($key == 'REQUEST_URI'):
-				return $this->getRequestUri();
-			case isset($_SERVER[$key]):
-				return $_SERVER[$key];
-			case isset($_ENV[$key]):
-				return $_ENV[$key];*/
 			default:
 				return null;
 		}
@@ -50,9 +47,6 @@ class Request
 	 */
 	public function get($key, $default = null)
 	{
-		if (null === $default) {
-			return $this->__get($key);
-		}
 		$ret = $this->__get($key);
 		return null === $ret ? $default : $ret;
 	}
@@ -72,12 +66,6 @@ class Request
 				return true;
 			case isset($_POST[$key]):
 				return true;
-			/*case isset($_COOKIE[$key]):
-				return true;
-			case isset($_SERVER[$key]):
-				return true;
-			case isset($_ENV[$key]):
-				return true;*/
 			default:
 				return false;
 		}
@@ -88,16 +76,25 @@ class Request
 		return $this->uri;
 	}
 
-	public function cookie($key)
+	public function cookie($key, $def = null)
 	{
-		return $_COOKIE[$key];
+		return isset($_COOKIE[$key]) ? $_COOKIE[$key] : $def;
 	}
 
-	public function session($key)
+	public function session($key, $def = null)
 	{
-		return $_SESSION[$key];
+		return isset($_SESSION[$key]) ? $_SESSION[$key] : $def;
 	}
 
+	public function server($key, $def = null)
+	{
+		return isset($_SERVER[$key]) ? $_SERVER[$key] : $def;
+	}
+
+	public function env($key, $def = null)
+	{
+		return isset($_ENV[$key]) ? $_ENV[$key] : $def;
+	}
 
 	public function setParam($key, $value)
 	{
@@ -116,12 +113,12 @@ class Request
 
 	public function isPost()
 	{
-		return (isset($_SERVER['REQUEST_METHOD']) && 'POST' == $_SERVER['REQUEST_METHOD']);
+		return 'POST' == $this->server('REQUEST_METHOD');
 	}
 
 	public function isXmlHttpRequest()
 	{
-		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 'XMLHttpRequest' == $_SERVER['HTTP_X_REQUESTED_WITH']);
+		return 'XMLHttpRequest' == $this->server('HTTP_X_REQUESTED_WITH');
 	}
 }
 

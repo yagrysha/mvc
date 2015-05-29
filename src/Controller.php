@@ -10,10 +10,11 @@ class Controller
 	public function __construct(App $app){
 		$this->app=$app;
 		$this->req=$app->req;
+		$this->user=$app->user;
 		$this->res = new Response();
 	}
 
-	public function run(){
+	public function run(array $params){
 
 	}
 }
