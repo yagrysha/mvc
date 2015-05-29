@@ -3,9 +3,9 @@ namespace Yagrysha\MVC;
 
 class Exception extends \Exception{
 
-	const TYPE_404 = 404;
-	const TYPE_500 = 500;
-	const TYPE_NOACCESS = 1;
+	const TYPE_404 = 1;
+	const TYPE_500 = 2;
+	const TYPE_NOACCESS = 3;
 	private $type;
 
 	public function __construct($type){
@@ -13,21 +13,31 @@ class Exception extends \Exception{
 		parent::__construct();
 	}
 
-	public function process(App $app){
-		if($app->env=='dev'){
-			print_r($this);
-		}
+	public function getType(){
+		return $this->type;
+	}
 
+	public function process(App $app){
 		switch($this->type){
 			case self::TYPE_NOACCESS:
-				echo 'no permisions';
+				$action = 'noaccess';
 				break;
 			case self::TYPE_404:
-				echo 'page not found';
+				$action = 'error404';
 				break;
 			default:
-				echo 'server error';
+				$action = 'error500';
 		}
-		return true;
+		try {
+			$app->runController(
+				[
+					'controller' => 'error',
+					'action' => $action,
+					'data' => $this
+				]
+			);
+		}catch (\Exception $e){
+			die('error');
+		}
 	}
 }

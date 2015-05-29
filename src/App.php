@@ -6,7 +6,6 @@ if (!defined('ROOT_DIR')) {
 	define('ROOT_DIR', realpath(__DIR__ . '/../'));
 }
 define('APP_DIR', ROOT_DIR . '/app/');
-
 class App
 {
 	public $env = 'dev';
@@ -33,9 +32,6 @@ class App
 			'controller'=>'default',
 		];
 		$uri= trim($uri, '/ ');
-		if('/'!=WEB_DIR){
-			//TODO отбросить папку
-		}
 		foreach ($this->conf['routing'] as $pattern=>$data) {
 			$matches=[];
 			if(preg_match('`^'.$pattern.'`', $uri, $matches)){
@@ -61,30 +57,41 @@ class App
 		}
 		return true;
 	}
+	private function init(){
+		if(!empty($this->conf['init'])){
+			//todo
+			foreach($this->conf['init'] as $mw){
+				var_dump($mw);
+			}
+		}
+	}
+
 
 	public function run()
 	{
 		try {
+			$this->init();
 			$params = $this->checkRoute($this->req->getRequestUri());
 			$this->checkAccess($params['module'], $params['controller']);
 			$this->req->setParams($params);
-			$module = empty($params['module'])?'':('\\'.ucfirst($params['module']));
-			$controller = ucfirst($params['controller']);
-			$class = "Yagrysha\\MVC\\Controller$module\\{$controller}Controller";
-//todo
-			$controller = new $class($this);
-			$controller->run($params);
+			$this->runController($params, true);
 		}catch (Exception $e){
 			$e->process($this);
 		}
 	}
 
-	public function controller($params){
+	public function runController($params, $throw404=false){
 		$module = empty($params['module'])?'':('\\'.ucfirst($params['module']));
 		$controller = ucfirst($params['controller']);
 		$class = "Yagrysha\\MVC\\Controller$module\\{$controller}Controller";
+		if(!class_exists($class)){
+			if($throw404){
+				throw new Exception(Exception::TYPE_404);
+			}else{
+				return '';
+			}
+		}
 		$controller = new $class($this);
 		$controller->run($params);
-		//todo;
 	}
 }

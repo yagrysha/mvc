@@ -1,6 +1,8 @@
 <?php
-const HOST = 't.loc';
-const WEB_DIR='/';
+const HOST = 'mvc.loc';
+const ROLE_GUEST = 0;
+const ROLE_USER = 1;
+const ROLE_ADMIN = 2;
 
 return [
 	'routing'=>[
@@ -20,5 +22,11 @@ return [
 		/*'module'=>[
 			'controller'=>[ROLE_GUEST]
 		]*/
+	],
+	'init'=>[
+		function($app){
+			echo 'hello';
+			p($app);
+		}
 	]
 ];
