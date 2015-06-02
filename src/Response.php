@@ -4,12 +4,11 @@ namespace Yagrysha\MVC;
 
 class Response
 {
-	const TYPE_HTML = 1;
-	const TYPE_TEXT = 2;
-	const TYPE_XML = 3;
-	const TYPE_JSON = 4;
+	const TYPE_HTML = 'html';
+	const TYPE_TEXT = 'txt';
+	const TYPE_XML = 'xml';
+	const TYPE_JSON = 'json';
 
-	private $type;
 	private $ctypes = [
 		self::TYPE_HTML => 'text/html',
 		self::TYPE_TEXT => 'text/plain',
@@ -21,7 +20,7 @@ class Response
 		'X-Powered-By: PHP/mvc'
 	];
 	private $contentType = 'text/html';
-	private $data;
+	private $content;
 	private $statusCodes = array(
 		100 => 'Continue',
 		101 => 'Switching Protocols',
@@ -78,25 +77,13 @@ class Response
 	public function type($type)
 	{
 		if (isset($this->ctypes[$type])) {
-			$this->type = $type;
 			$this->contentType($this->ctypes[$type]);
 		}
 	}
 
-	public function setData($data)
+	public function setContent($content)
 	{
-		if (is_array($data)) {
-			//todo render
-			if (isset($data['_type'])) {
-				$this->type($data['_type']);
-				unset($data['_type']);
-			}
-			if (isset($data['_status'])) {
-				$this->status($data['_status']);
-				unset($data['_status']);
-			}
-		}
-		$this->data = $data;
+		$this->content = $content;
 	}
 
 	public function status($statusCode)
@@ -128,14 +115,23 @@ class Response
 		}
 	}
 
-	public function render()
+	public function header($header)
+	{
+		$this->headers[] = $header;
+	}
+
+	public function setAlwaysModified()
+	{
+		$this->headers[] = 'Expires: Mon, 1 Jun 1970 00:00:00 GMT';  // Date in the past
+		$this->headers[] = 'Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT'; // always modified
+		$this->headers[] = 'Cache-Control: no-store, no-cache, must-revalidate'; // HTTP/1.1
+		$this->headers[] = 'Cache-Control: post-check=0, pre-check=0';
+		$this->headers[] = 'Pragma: no-cache'; // HTTP/1.1
+	}
+
+	public function sendContent()
 	{
 		$this->sendHeaders();
-		if (self::TYPE_JSON == $this->type) {
-			echo json_encode($this->data);
-		} else {
-			//todo renders
-			echo $this->data;
-		}
+		echo $this->content;
 	}
 }

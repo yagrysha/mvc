@@ -4,16 +4,10 @@ const ROLE_GUEST = 0;
 const ROLE_USER = 1;
 const ROLE_ADMIN = 2;
 
+const APP_NS = 'myApp';
+
 return [
-	'routing'=>[
-		// toto сделать дефолтный роутинг без регулярки
-		'([a-z]+)/?([a-z]*)/?([a-z0-9-_]*)'=>array(
-			1=>'controller', // позиция подмаски - значение парметра
-			2=>'action',
-			3=>'data',
-			'action'=>'index' //default
-		)
-	],
+	'routing'=> include_once APP_DIR . 'routing.php',
 	//доступ уровня моудуля/ контроллера
 	'access'=>[
 		''=>[
@@ -24,9 +18,8 @@ return [
 		]*/
 	],
 	'init'=>[
-		function($app){
+		/*function($app){
 			echo 'hello';
-			p($app);
-		}
+		}*/
 	]
 ];

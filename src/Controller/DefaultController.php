@@ -1,19 +1,23 @@
 <?php
 namespace Yagrysha\MVC\Controller;
+
 use Yagrysha\MVC\Controller;
 use Yagrysha\MVC\Exception;
 
-class DefaultController extends Controller{
+class DefaultController extends Controller
+{
 
-	public function init(){
+	public function init()
+	{
 		//todo
 		//cache control
 		//access con
 		//parent::run();
 	}
 
-	public function indexAction(){
-	//	pe($_SERVER);
+	public function indexAction()
+	{
+		//	pe($_SERVER);
 		//throw new Exception(Exception::TYPE_404);
 		//throw new Exception(Exception::TYPE_500);
 //		throw new Exception(Exception::TYPE_NOACCESS);
@@ -21,7 +25,11 @@ class DefaultController extends Controller{
 		return 'content';
 	}
 
-	public function testactAction(){
-
+	public function contactAction()
+	{
+		//pe($this->req->getParams(), $this->params);
+		return [
+			'text' => 'hello wold'
+		];
 	}
 }

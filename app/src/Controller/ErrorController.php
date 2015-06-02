@@ -1,14 +1,13 @@
 <?php
-namespace Yagrysha\MVC\Controller;
+namespace myApp\Controller;
 use Yagrysha\MVC\Controller;
 
 class ErrorController extends Controller{
 
 	public function init(){
 		if($this->app->env=='dev'){
-			print_r($this->params);
+			p('dev ENV',$this->params);
 		}
-
 	}
 
 	public function error404Action(){
