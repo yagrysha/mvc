@@ -26,9 +26,9 @@ abstract class Controller
 		$this->params = $params;
 		$this->init();
 		$res = $this->$action();
-		if(is_array($res)){
+		if (is_array($res)) {
 			$this->render($res);
-		}else{
+		} else {
 			$this->res->setContent($res);
 		}
 		$this->res->sendContent();
@@ -45,28 +45,32 @@ abstract class Controller
 
 	protected function render($data)
 	{
-		if(isset($data['_status'])){
+		if (isset($data['_status'])) {
 			$this->res->status($data['_status']);
 		}
-		if(isset($data['_type'])){
+		if (isset($data['_type'])) {
 			$this->res->type($data['_type']);
-			if(Response::TYPE_JSON==$data['_type']){
+			if (Response::TYPE_JSON == $data['_type']) {
 				unset($data['_type']);
 				$this->res->setContent($data);
 				return;
 			}
 		}
-		if(isset($data['_content'])){
+		if (isset($data['_content'])) {
 			$this->res->setContent($data['_content']);
 			return;
 		}
-		if(empty($data['_tpl'])){
-			$data['_tpl'] = ($this->params['module']?$this->params['module'].DIRECTORY_SEPARATOR:'')
-				.$this->params['controller'].DIRECTORY_SEPARATOR.$this->params['action'];
-		}elseif(strpos($data['_tpl'], '/')===false){
-			$data['_tpl'] = ($this->params['module']?$this->params['module'].DIRECTORY_SEPARATOR:'')
-				.$this->params['controller'].DIRECTORY_SEPARATOR.$data['_tpl'];
+		if (empty($data['_tpl'])) {
+			$template = ($this->params['module'] ? $this->params['module'] . DIRECTORY_SEPARATOR : '')
+				. $this->params['controller'] . DIRECTORY_SEPARATOR . $this->params['action'];
+		} elseif (strpos($data['_tpl'], '/') === false) {
+			$template = ($this->params['module'] ? $this->params['module'] . DIRECTORY_SEPARATOR : '')
+				. $this->params['controller'] . DIRECTORY_SEPARATOR . $data['_tpl'];
+		} else {
+			$template = $data['_tpl'];
 		}
-		$this->res->setContent(Render::run($data));
+		$template .= empty($data['_type']) ? '' : ('.' . $data['_type']);
+		unset($data['_tpl'], $data['_type']);
+		$this->res->setContent(Render::render($template, $data));
 	}
 }
