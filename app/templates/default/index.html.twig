@@ -1,2 +1,5 @@
 twig tpl
 {{text}}
+{{ render('sub', {a:1}) }}
+{#{{ render('default:sub') }}#}
+{{ render('test:default:sub', {a:1}) }}

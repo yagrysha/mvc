@@ -6,7 +6,7 @@ class ErrorController extends Controller{
 
 	public function init(){
 		if($this->app->env=='dev'){
-			p('dev ENV',$this->params);
+			//p('dev ENV',$this->params);
 		}
 	}
 

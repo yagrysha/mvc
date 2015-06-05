@@ -6,6 +6,8 @@ return [
 				return ['action'=>'index'];
 			case '/contact':
 				return ['action'=>'contact'];
+			case '/test/sub':
+				return ['action'=>'sub', 'module'=>'test'];
 		}
 		return false;
 	},

@@ -99,7 +99,7 @@ class Response
 
 	public function location($uri)
 	{
-		header('Location: ' . $uri);
+		header('Location: ' . $uri, true, 301);
 	}
 
 	public function contentType($type)

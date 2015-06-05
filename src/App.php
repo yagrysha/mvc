@@ -1,6 +1,7 @@
 <?php
 
 namespace Yagrysha\MVC;
+use Yagrysha\MVC\Exception;
 
 if (!defined('ROOT_DIR')) {
 	define('ROOT_DIR', realpath(__DIR__ . '/../'));
@@ -11,7 +12,14 @@ class App
 {
 	public $env = 'dev';
 	private $conf;
+	/**
+	 * @var Request
+	 */
 	public $req;
+	/**
+	 * @var Response
+	 */
+	public $res;
 	public $user;
 
 	private $defRouteParams = [
@@ -81,30 +89,29 @@ class App
 
 	public function run()
 	{
+		$this->res = new Response();
 		try {
 			$this->init();
 			$params = $this->checkRoute($this->req->getRequestUri());
 			$this->checkAccess($params['module'], $params['controller']);
 			$this->req->setParams($params);
-			$this->runController($params, true);
+			$content = $this->runController($params);
 		} catch (Exception $e) {
-			$e->process($this);
+			$content = $e->process($this);
 		}
+		$this->res->setContent($content);
+		$this->res->sendContent();
 	}
 
-	public function runController($params, $throw404 = false)
+	public function runController($params)
 	{
 		$module = empty($params['module']) ? '' : ('\\' . ucfirst($params['module']));
 		$controller = ucfirst($params['controller']);
 		$class = APP_NS."\\Controller$module\\{$controller}Controller";
 		if (!class_exists($class)) {
-			if ($throw404) {
-				throw new Exception(Exception::TYPE_404);
-			} else {
-				return '';
-			}
+			throw new Exception(Exception::TYPE_404);
 		}
 		$controller = new $class($this);
-		$controller->run($params);
+		return $controller->run($params);
 	}
 }

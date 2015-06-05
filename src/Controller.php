@@ -4,17 +4,26 @@ namespace Yagrysha\MVC;
 
 abstract class Controller
 {
+	/**
+	 * @var Request
+	 */
 	protected $req;
+	/**
+	 * @var Response
+	 */
 	protected $res;
-	protected $app;
-	protected $params;
+	/**
+	 * @var App
+	 */
+	public $app;
+	public $params;
 
 	public function __construct(App $app)
 	{
 		$this->app = $app;
 		$this->req = $app->req;
 		$this->user = $app->user;
-		$this->res = new Response();
+		$this->res = $app->res;
 	}
 
 	public function run($params)
@@ -27,50 +36,42 @@ abstract class Controller
 		$this->init();
 		$res = $this->$action();
 		if (is_array($res)) {
-			$this->render($res);
-		} else {
-			$this->res->setContent($res);
+			if (isset($res['_status'])) {
+				$this->res->status($res['_status']);
+				unset($res['_status']);
+			}
+			if (isset($res['_redirect'])) {
+				$this->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . $res['_redirect']);
+				return '';
+			}
+			return $this->render($res);
 		}
-		$this->res->sendContent();
+		return $res;
+	}
+
+	/**
+	 * @return Response
+	 */
+	public function getResponse(){
+		return $this->res;
 	}
 
 	protected function init()
 	{
 	}
 
-	protected function redirect($uri)
-	{
-		$this->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . $uri);
-	}
-
 	protected function render($data)
 	{
-		if (isset($data['_status'])) {
-			$this->res->status($data['_status']);
-		}
 		if (isset($data['_type'])) {
 			$this->res->type($data['_type']);
 			if (Response::TYPE_JSON == $data['_type']) {
 				unset($data['_type']);
-				$this->res->setContent($data);
-				return;
+				return json_encode($data);
 			}
 		}
 		if (isset($data['_content'])) {
-			$this->res->setContent($data['_content']);
-			return;
+			return $data['_content'];
 		}
-		if (empty($data['_tpl'])) {
-			$template = ($this->params['module'] ? $this->params['module'] . DIRECTORY_SEPARATOR : '')
-				. $this->params['controller'] . DIRECTORY_SEPARATOR . $this->params['action'];
-		} elseif (strpos($data['_tpl'], '/') === false) {
-			$template = ($this->params['module'] ? $this->params['module'] . DIRECTORY_SEPARATOR : '')
-				. $this->params['controller'] . DIRECTORY_SEPARATOR . $data['_tpl'];
-		} else {
-			$template = $data['_tpl'];
-		}
-		$template .= empty($data['_type']) ? '' : ('.' . $data['_type']);
-		unset($data['_tpl'], $data['_type']);
-		$this->res->setContent(Render::render($template, $data));
+		return Render::get()->render($this, $data);
 	}
 }

@@ -29,7 +29,7 @@ class Exception extends \Exception{
 				$action = 'error500';
 		}
 		try {
-			$app->runController(
+			return $app->runController(
 				[
 					'controller' => 'error',
 					'action' => $action,
