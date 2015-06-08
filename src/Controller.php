@@ -9,10 +9,6 @@ abstract class Controller
 	 */
 	protected $req;
 	/**
-	 * @var Response
-	 */
-	protected $res;
-	/**
 	 * @var App
 	 */
 	public $app;
@@ -23,25 +19,24 @@ abstract class Controller
 		$this->app = $app;
 		$this->req = $app->req;
 		$this->user = $app->user;
-		$this->res = $app->res;
 	}
 
 	public function run($params)
 	{
+		$this->params = $params;
+		$this->init();
 		$action = $params['action'] . 'Action';
 		if (!method_exists($this, $action)) {
 			throw new Exception(Exception::TYPE_500);
 		}
-		$this->params = $params;
-		$this->init();
-		$res = $this->$action();
+		$res = $this->postExecute($this->$action());
 		if (is_array($res)) {
 			if (isset($res['_status'])) {
-				$this->res->status($res['_status']);
+				$this->app->res->status($res['_status']);
 				unset($res['_status']);
 			}
 			if (isset($res['_redirect'])) {
-				$this->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . $res['_redirect']);
+				$this->redirect($res['_redirect']);
 				return '';
 			}
 			return $this->render($res);
@@ -49,21 +44,30 @@ abstract class Controller
 		return $res;
 	}
 
+	protected function redirect($uri){
+		$this->app->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . ltrim($uri,'/'));
+	}
+
 	/**
 	 * @return Response
 	 */
 	public function getResponse(){
-		return $this->res;
+		return $this->app->res;
 	}
 
 	protected function init()
 	{
 	}
 
+	protected function postExecute($res)
+	{
+		return $res;
+	}
+
 	protected function render($data)
 	{
 		if (isset($data['_type'])) {
-			$this->res->type($data['_type']);
+			$this->app->res->type($data['_type']);
 			if (Response::TYPE_JSON == $data['_type']) {
 				unset($data['_type']);
 				return json_encode($data);

@@ -5,11 +5,21 @@ use Yagrysha\MVC\Controller;
 
 class DefaultController extends Controller
 {
+	public function init(){
+		//pe($this->user);
+	}
+
 	public function indexAction()
 	{
 		return [
 			'text'=>'hello/ index page'
 		];
+	}
+
+	public function privateAction(){
+		if(!$this->user->isLogged()){
+			return ['_redirect'=>'login'];
+		}
 	}
 
 	public function contactAction()
@@ -21,9 +31,14 @@ class DefaultController extends Controller
 
 	public function subAction()
 	{
-		//pe($this);
 		return [
 			'text' => ' DEF SUB '
+		];
+	}
+
+	public function login(){
+		return [
+			'text'=>'login page'
 		];
 	}
 }

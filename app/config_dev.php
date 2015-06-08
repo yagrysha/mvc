@@ -8,6 +8,7 @@ const APP_NS = 'myApp';
 
 return [
 	'routing'=> include_once APP_DIR . 'routing.php',
+	'userClass' =>APP_NS.'\User',
 	//доступ уровня моудуля/ контроллера
 	'access'=>[
 		''=>[

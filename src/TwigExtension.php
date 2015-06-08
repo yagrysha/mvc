@@ -29,7 +29,7 @@ class TwigExtension extends \Twig_Extension
 		];
 	}
 
-	public function render($action, $params = [])
+	public function render($action, $params = [], $cacheTime=null)
 	{
 		if (empty($action)) {
 			return '';
@@ -58,7 +58,7 @@ class TwigExtension extends \Twig_Extension
 				&& $params['module'] == $this->controller->params['module']) {
 				return $this->controller->run($params);
 			}
-			return $this->controller->app->runController($params);
+			return $this->controller->app->runController($params, $cacheTime);
 		} catch (\Exception $e) {
 			if ('dev' == $this->controller->app->env) {
 				return $e;

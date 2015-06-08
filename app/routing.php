@@ -1,13 +1,14 @@
 <?php
 return [
 	function(\Yagrysha\MVC\Request $req){
-		switch (parse_url($req->getRequestUri(), PHP_URL_PATH)){
+		$uri = parse_url($req->getRequestUri(), PHP_URL_PATH);
+		switch ($uri){
 			case '/' :
 				return ['action'=>'index'];
-			case '/contact':
-				return ['action'=>'contact'];
-			case '/test/sub':
-				return ['action'=>'sub', 'module'=>'test'];
+			default:
+				if(!strpos($uri,'/',1)){
+					return ['action'=>$uri];
+				}
 		}
 		return false;
 	},

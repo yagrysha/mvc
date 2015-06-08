@@ -33,7 +33,8 @@ class App
 		$this->env = $env;
 		$this->conf = require_once APP_DIR . 'config_' . $this->env . '.php';
 		$this->req = new Request();
-		$this->user = User::getUser($this->req);
+		$userClass = $this->conf['userClass']?:'User';
+		$this->user = $userClass::getUser($this->req);
 	}
 
 	public function setRequest(Request $request)
@@ -44,9 +45,11 @@ class App
 	public function checkRoute($uri)
 	{
 		foreach ($this->conf['routing'] as $pattern => $data) {
-			if (is_callable($data) && $params = $data($this->req)) {
-				$params = array_merge($this->defRouteParams, $params);
-				break;
+			if (is_callable($data)) {
+				if($params = $data($this->req)) {
+					$params = array_merge($this->defRouteParams, $params);
+					break;
+				}
 			} else {
 				$matches = [];
 				if (preg_match('`^' . $pattern . '`', $uri, $matches)) {
@@ -71,7 +74,7 @@ class App
 		if (!empty($this->conf['access'][$module][$controller])
 			&& !$this->user->hasRole($this->conf['access'][$module][$controller])
 		) {
-			throw new Exception(Exception::TYPE_NOACCESS);
+			throw new Exception(Exception::TYPE_ACCESSDENIED);
 		}
 		return true;
 	}
@@ -103,15 +106,27 @@ class App
 		$this->res->sendContent();
 	}
 
-	public function runController($params)
+	public function runController($params, $cacheTime=null)
 	{
-		$module = empty($params['module']) ? '' : ('\\' . ucfirst($params['module']));
+		$params = array_merge($this->defRouteParams, $params);
+		if($cacheTime){
+			$cachekey=md5(serialize($params)).$cacheTime;
+			$cache = Cache::getManager($this->conf['cache']?:'');
+			$ret = $cache->get($cachekey);
+			if($ret) return $ret;
+		}
+		$module = $params['module'] ? ('\\' . ucfirst($params['module'])):'';
 		$controller = ucfirst($params['controller']);
 		$class = APP_NS."\\Controller$module\\{$controller}Controller";
 		if (!class_exists($class)) {
 			throw new Exception(Exception::TYPE_404);
 		}
 		$controller = new $class($this);
+		if($cacheTime){
+			$ret = $controller->run($params);
+			$cache->set($ret);
+			return $ret;
+		}
 		return $controller->run($params);
 	}
 }

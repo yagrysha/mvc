@@ -4,23 +4,21 @@ use Yagrysha\MVC\Controller;
 
 class ErrorController extends Controller{
 
-	public function init(){
+	protected function init(){
 		if($this->app->env=='dev'){
 			//p('dev ENV',$this->params);
 		}
 	}
 
 	public function error404Action(){
-		$this->res->status(404);
-		return '444';
+		return ['_status'=>404];
 	}
 
 	public function error500Action(){
-		$this->res->status(500);
-		return '555';
+		return ['_status'=>500];
 	}
 
-	public function noaccessAction(){
-		return 'noa';
+	public function accessDeniedAction(){
+		return ['text'=>''];
 	}
 }

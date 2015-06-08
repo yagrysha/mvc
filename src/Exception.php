@@ -5,11 +5,14 @@ class Exception extends \Exception{
 
 	const TYPE_404 = 1;
 	const TYPE_500 = 2;
-	const TYPE_NOACCESS = 3;
+	const TYPE_ACCESSDENIED = 3;
+	const TYPE_ = 4;
 	private $type;
+	private $data;
 
-	public function __construct($type){
+	public function __construct($type, $data =null){
 		$this->type = $type;
+		$this->data = $data;
 		parent::__construct();
 	}
 
@@ -17,10 +20,14 @@ class Exception extends \Exception{
 		return $this->type;
 	}
 
+	public function getData(){
+
+	}
+
 	public function process(App $app){
 		switch($this->type){
-			case self::TYPE_NOACCESS:
-				$action = 'noaccess';
+			case self::TYPE_ACCESSDENIED:
+				$action = 'accessDenied';
 				break;
 			case self::TYPE_404:
 				$action = 'error404';
