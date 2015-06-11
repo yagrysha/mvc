@@ -120,6 +120,12 @@ class Response
 		$this->headers[] = $header;
 	}
 
+	public function setCacheHeader($time){
+		$this->headers[] = 'Cache-Control: max-age='.$time.', public';
+		//$this->headers[] = 'Last-Modified: '. gmdate("D, d M Y H:i:s ").'GMT';
+		//$this->headers[] = 'Expires: '. gmdate("D, d M Y H:i:s ", time() + $time).'GMT';
+	}
+
 	public function setAlwaysModified()
 	{
 		$this->headers[] = 'Expires: Mon, 1 Jun 1970 00:00:00 GMT';  // Date in the past
@@ -131,7 +137,8 @@ class Response
 
 	public function sendContent()
 	{
-		$this->sendHeaders();
+		if (!headers_sent())
+			$this->sendHeaders();
 		echo $this->content;
 	}
 }

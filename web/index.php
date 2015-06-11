@@ -1,5 +1,6 @@
 <?php
 $s = microtime(1);
+//require_once '../vendor/autoload.php';
 require_once '../test/bootstrap.php';
 $app = new \Yagrysha\MVC\App('dev');
 $app->run();

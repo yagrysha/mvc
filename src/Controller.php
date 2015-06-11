@@ -2,12 +2,15 @@
 
 namespace Yagrysha\MVC;
 
+use Yagrysha\MVC\Cache\Manager as CacheManager;
+
 abstract class Controller
 {
 	/**
 	 * @var Request
 	 */
 	protected $req;
+	protected $cacheConfig = [];
 	/**
 	 * @var App
 	 */
@@ -24,12 +27,15 @@ abstract class Controller
 	public function run($params)
 	{
 		$this->params = $params;
-		$this->init();
-		$action = $params['action'] . 'Action';
-		if (!method_exists($this, $action)) {
-			throw new Exception(Exception::TYPE_500);
+		$res = $this->init();
+		if (null === $res) {
+			$action = $params['action'] . 'Action';
+			if (!method_exists($this, $action)) {
+				throw new Exception(Exception::TYPE_500);
+			}
+			$res = $this->$action();
 		}
-		$res = $this->postExecute($this->$action());
+		$res = $this->postExecute($res);
 		if (is_array($res)) {
 			if (isset($res['_status'])) {
 				$this->app->res->status($res['_status']);
@@ -44,14 +50,34 @@ abstract class Controller
 		return $res;
 	}
 
-	protected function redirect($uri){
-		$this->app->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . ltrim($uri,'/'));
+	protected function getActionCache()
+	{
+		if (empty($this->cacheConfig[$this->params['action']])) {
+			return null;
+		}
+		$ttl = $this->cacheConfig[$this->params['action']];
+		$key = 'controller/' . md5(serialize($this->params));
+		$ret = CacheManager::get($this->app->conf['cache'] ?: '')->get($key, $ttl);
+		if ($ret) {
+			return unserialize($ret);
+		}
+	}
+
+	protected function saveCache($key, $data)
+	{
+		return CacheManager::get($this->app->conf['cache'] ?: '')->set($key, $ttl);
+	}
+
+	protected function redirect($uri)
+	{
+		$this->app->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . ltrim($uri, '/'));
 	}
 
 	/**
 	 * @return Response
 	 */
-	public function getResponse(){
+	public function getResponse()
+	{
 		return $this->app->res;
 	}
 

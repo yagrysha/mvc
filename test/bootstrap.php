@@ -1,7 +1,7 @@
 <?php
 require_once '../vendor/autoload.php';
 
-
+session_start();
 function debug_print($args){
     if (empty($args)) {
         return;

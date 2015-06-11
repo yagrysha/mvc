@@ -44,7 +44,7 @@ class Exception extends \Exception{
 				]
 			);
 		}catch (\Exception $e){
-			die('error');
+			die('error Exception'.$e);
 		}
 	}
 }

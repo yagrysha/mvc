@@ -22,7 +22,7 @@ class Request
 		if (!empty($params)) {
 			$this->setParams($params);
 		}
-		if(!isset($_SESSION)){
+		if(session_status() !== PHP_SESSION_ACTIVE){
 			session_start();
 		}
 	}

@@ -1,12 +1,12 @@
 <?php
 return [
-	function(\Yagrysha\MVC\Request $req){
-		$uri = parse_url($req->getRequestUri(), PHP_URL_PATH);
+	function($uri){
+		$uri = trim($uri, ' /');
 		switch ($uri){
-			case '/' :
-				return ['action'=>'index'];
+			case '':
+				return ['action'=>'index'/*, 'cacheTime'=>3600*/];
 			default:
-				if(!strpos($uri,'/',1)){
+				if(!strpos($uri,'/')){
 					return ['action'=>$uri];
 				}
 		}

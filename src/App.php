@@ -1,7 +1,7 @@
 <?php
 
 namespace Yagrysha\MVC;
-use Yagrysha\MVC\Exception;
+use Yagrysha\MVC\Cache\Manager as Cache;
 
 if (!defined('ROOT_DIR')) {
 	define('ROOT_DIR', realpath(__DIR__ . '/../'));
@@ -11,7 +11,7 @@ define('APP_DIR', ROOT_DIR . '/app/');
 class App
 {
 	public $env = 'dev';
-	private $conf;
+	public $conf;
 	/**
 	 * @var Request
 	 */
@@ -31,9 +31,9 @@ class App
 	public function __construct($env = 'dev')
 	{
 		$this->env = $env;
-		$this->conf = require_once APP_DIR . 'config_' . $this->env . '.php';
+		$this->conf = require APP_DIR . 'config_' . $this->env . '.php';
 		$this->req = new Request();
-		$userClass = $this->conf['userClass']?:'User';
+		$userClass = $this->conf['userClass']?:'Yagrysha\\MVC\\User';
 		$this->user = $userClass::getUser($this->req);
 	}
 
@@ -46,7 +46,7 @@ class App
 	{
 		foreach ($this->conf['routing'] as $pattern => $data) {
 			if (is_callable($data)) {
-				if($params = $data($this->req)) {
+				if($params = $data($uri)) {
 					$params = array_merge($this->defRouteParams, $params);
 					break;
 				}
@@ -98,7 +98,12 @@ class App
 			$params = $this->checkRoute($this->req->getRequestUri());
 			$this->checkAccess($params['module'], $params['controller']);
 			$this->req->setParams($params);
-			$content = $this->runController($params);
+			if(empty($params['cacheTime']) || !CACHE_ENABLED){
+				$content = $this->runController($params);
+			}else{
+				$this->res->setCacheHeader($params['cacheTime']);
+				$content = $this->runController($params, $params['cacheTime']);
+			}
 		} catch (Exception $e) {
 			$content = $e->process($this);
 		}
@@ -109,10 +114,10 @@ class App
 	public function runController($params, $cacheTime=null)
 	{
 		$params = array_merge($this->defRouteParams, $params);
-		if($cacheTime){
-			$cachekey=md5(serialize($params)).$cacheTime;
-			$cache = Cache::getManager($this->conf['cache']?:'');
-			$ret = $cache->get($cachekey);
+		if(CACHE_ENABLED && $cacheTime){
+			$cachekey='app/'.md5(serialize($params)).$cacheTime;
+			$cache = Cache::get();
+			$ret = $cache->get($cachekey, $cacheTime);
 			if($ret) return $ret;
 		}
 		$module = $params['module'] ? ('\\' . ucfirst($params['module'])):'';
@@ -122,9 +127,9 @@ class App
 			throw new Exception(Exception::TYPE_404);
 		}
 		$controller = new $class($this);
-		if($cacheTime){
+		if(CACHE_ENABLED && $cacheTime){
 			$ret = $controller->run($params);
-			$cache->set($ret);
+			$cache->set($cachekey, $ret);
 			return $ret;
 		}
 		return $controller->run($params);
