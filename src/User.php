@@ -75,7 +75,7 @@ class User
 
 	public function getUserDataByCode($code)
 	{
-		//get from base
+		//todo get from base
 		$this->login($this->defUserData, 'genme');
 		return $this->defUserData;
 	}

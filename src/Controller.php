@@ -65,7 +65,7 @@ abstract class Controller
 
 	protected function saveCache($key, $data)
 	{
-		return CacheManager::get($this->app->conf['cache'] ?: '')->set($key, $ttl);
+		return CacheManager::get($this->app->conf['cache'] ?: '')->set($key, $data);
 	}
 
 	protected function redirect($uri)

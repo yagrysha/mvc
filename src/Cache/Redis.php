@@ -1,7 +1,7 @@
 <?php
 namespace Yagrysha\MVC\Cache;
 
-
+//TODO сделать его
 class Redis {
 
 	const DEF_LIFETIME = 3600;
