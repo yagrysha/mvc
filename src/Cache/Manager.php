@@ -6,7 +6,12 @@ class Manager {
 	protected static $manager=[];
 
 	//TODO подставлять опции из конфига
-	public function get($type='File'){
+	//chache interface
+	/**
+	 * @param string $type
+	 * @return
+	 */
+	public static function get($type='File'){
 		if(!isset(self::$manager[$type])){
 			$type = 'Yagrysha\\MVC\\Cache\\'.$type;
 			self::$manager[$type] = new $type();

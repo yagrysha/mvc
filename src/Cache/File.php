@@ -8,7 +8,7 @@ namespace Yagrysha\MVC\Cache;
 class File {
 
 	private $options = [
-		'defaault_lifetime'=>36000,
+		'default_lifetime'=>36000,
 		'cache_dir' => null,
 		'file_locking' => false,
 		'hashed_directory_level' => 0,
@@ -40,10 +40,21 @@ class File {
 	}
 
 	public function setSetialize($key, $data){
+		if(is_array($key)){
+			$key=(empty($key['cacheGroup'])?'':($key['cacheGroup'].DIRECTORY_SEPARATOR)).serialize($key);
+		}
 		return $this->filePutContents($this->getFilePath($key), serialize($data));
 	}
 
-	public function del($key){
+	public function getSetialize($key, $lifetime=null){
+		if(is_array($key)){
+			$key=(empty($key['cacheGroup'])?'':($key['cacheGroup'].DIRECTORY_SEPARATOR)).serialize($key);
+		}
+		$ret = $this->get($key, $lifetime);
+		return $ret?unserialize($ret):$ret;
+	}
+
+	public function delete($key){
 		return unlink($this->getFilePath($key));
 	}
 
@@ -53,7 +64,6 @@ class File {
 			$path.= substr($key, 0, $ds+1);
 		}
 		$key= md5($key);
-
 		if($this->options['hashed_directory_level']>0){
 			$level = min(8,(int)$this->options['hashed_directory_level']);
 			$start = 0;
@@ -91,16 +101,53 @@ class File {
 		return $result;
 	}
 
-	public function clearExpired($maxLifeTime){
-//todo
+	public function clearExpired($maxLifeTime, $dir=null){
+		$expiredTime = time() - $maxLifeTime;
+		$files = array_diff(scandir($dir), array('.','..'));
+		foreach ($files as $file) {
+			$path = "$dir/$file";
+			if (is_dir($path)) {
+				$this->clearExpired($path);
+			}elseif(filemtime($path) < $expiredTime){
+				unlink($path);
+			}
+		}
 	}
 
-	public function clearEmptyDir(){
-		//todo
+	public function clearEmptyDir($dir=null){
+		$dir = null==$dir?$this->options['cache_dir']:$dir;
+		$files = array_diff(scandir($dir), array('.','..'));
+		if($files) {
+			foreach ($files as $file) {
+				$path = "$dir/$file";
+				if (is_dir($path)) {
+					$this->clearEmptyDir($path);
+				}
+			}
+		}elseif($dir!=$this->options['cache_dir']){
+			return rmdir($dir);
+		}
+	}
+
+	public function clearDir($dir){
+		return $this->delTree($this->options['cache_dir'].$dir);
 	}
 
 	public function deleteAll(){
-		//todo весь кеш удалить
+		$dir = $this->options['cache_dir'];
+		$files = array_diff(scandir($dir), array('.','..'));
+		foreach ($files as $file) {
+			(is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+		}
 	}
+
+	public function delTree($dir) {
+		$files = array_diff(scandir($dir), array('.','..'));
+		foreach ($files as $file) {
+			(is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+		}
+		return rmdir($dir);
+	}
+
 
 }

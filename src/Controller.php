@@ -49,7 +49,7 @@ abstract class Controller
 		}
 		return $res;
 	}
-
+//TODO action caching
 	protected function getActionCache()
 	{
 		if (empty($this->cacheConfig[$this->params['action']])) {
@@ -57,12 +57,12 @@ abstract class Controller
 		}
 		$ttl = $this->cacheConfig[$this->params['action']];
 		$key = 'controller/' . md5(serialize($this->params));
-		$ret = CacheManager::get($this->app->conf['cache'] ?: '')->get($key, $ttl);
+		return CacheManager::get($this->app->conf['cache'] ?: '')->get($key, $ttl);
 		if ($ret) {
 			return unserialize($ret);
 		}
 	}
-
+//TODO action caching
 	protected function saveCache($key, $data)
 	{
 		return CacheManager::get($this->app->conf['cache'] ?: '')->set($key, $data);
