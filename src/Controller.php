@@ -12,6 +12,10 @@ abstract class Controller
 	protected $req;
 	protected $cacheConfig = [];
 	/**
+	 * @var User
+	 */
+	protected $user;
+	/**
 	 * @var App
 	 */
 	public $app;
@@ -31,7 +35,7 @@ abstract class Controller
 		if (null === $res) {
 			$action = $params['action'] . 'Action';
 			if (!method_exists($this, $action)) {
-				throw new Exception(Exception::TYPE_500);
+				throw new Exception(Exception::TYPE_500, ['message'=>'Action not found']);
 			}
 			$res = $this->$action();
 		}
@@ -49,23 +53,19 @@ abstract class Controller
 		}
 		return $res;
 	}
-//TODO action caching
+
 	protected function getActionCache()
 	{
 		if (empty($this->cacheConfig[$this->params['action']])) {
 			return null;
 		}
-		$ttl = $this->cacheConfig[$this->params['action']];
-		$key = 'controller/' . md5(serialize($this->params));
-		return CacheManager::get($this->app->conf['cache'] ?: '')->get($key, $ttl);
-		if ($ret) {
-			return unserialize($ret);
-		}
+		return CacheManager::get()->getSetialize($this->params+['cacheGroup'=>'controller'],
+			$this->cacheConfig[$this->params['action']]);
 	}
-//TODO action caching
+
 	protected function saveCache($key, $data)
 	{
-		return CacheManager::get($this->app->conf['cache'] ?: '')->set($key, $data);
+		return CacheManager::get()->setSetialize($key, $data);
 	}
 
 	protected function redirect($uri)
@@ -83,10 +83,18 @@ abstract class Controller
 
 	protected function init()
 	{
+		$res = $this->getActionCache();
+		if($res){
+			return $res;
+		}
+		return null;
 	}
 
 	protected function postExecute($res)
 	{
+		if (!empty($this->cacheConfig[$this->params['action']])) {
+			$this->saveCache($this->params+['cacheGroup'=>'controller'], $res);
+		}
 		return $res;
 	}
 

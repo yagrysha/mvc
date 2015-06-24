@@ -20,6 +20,9 @@ class App
 	 * @var Response
 	 */
 	public $res;
+	/**
+	 * @var User
+	 */
 	public $user;
 
 	private $defRouteParams = [
@@ -88,6 +91,7 @@ class App
 				}
 			}
 		}
+		Cache::init($this->conf['cache']);
 	}
 
 	public function run()

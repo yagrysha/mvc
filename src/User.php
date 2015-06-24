@@ -96,4 +96,8 @@ class User
 			);
 		}
 	}
+
+	public function getData(){
+		return $this->userData;
+	}
 }

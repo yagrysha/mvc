@@ -8,7 +8,7 @@ class Exception extends \Exception{
 	const TYPE_ACCESSDENIED = 3;
 	const TYPE_ = 4;
 	private $type;
-	private $data;
+	private $data=[];
 
 	public function __construct($type, $data =null){
 		$this->type = $type;
@@ -21,7 +21,7 @@ class Exception extends \Exception{
 	}
 
 	public function getData(){
-
+		return $this->data;
 	}
 
 	public function process(App $app){

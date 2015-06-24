@@ -10,19 +10,28 @@ const CACHE_ENABLED = true;
 return [
 	'routing'=> include_once APP_DIR . 'routing.php',
 	'userClass' =>APP_NS.'\User',
-	'cache'=>'File',
+	'cache'=>[
+		'type'=>'File',
+		'options'=>[
+			'cache_dir' => APP_DIR.'cache/file/',
+		]
+	],
 	//доступ уровня моудуля/ контроллера
 	'access'=>[
 		''=>[
-			'default'=>[ROLE_USER]
+			'default'=>[ROLE_GUEST, ROLE_USER]
 		]
-		/*'module'=>[
-			'controller'=>[ROLE_GUEST]
+		/*'admin module'=>[
+			'admin controller'=>[ROLE_ADMIN]
 		]*/
 	],
 	'init'=>[
-		/*function($app){
-			echo 'hello';
-		}*/
+		function($app){
+			//init Database
+			\Yagrysha\ORM\Db::init([
+				'host' => '127.0.0.1',
+				'dbname'=>'test',
+			]);
+		}
 	]
 ];

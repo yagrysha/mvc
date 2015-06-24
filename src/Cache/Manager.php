@@ -3,19 +3,25 @@ namespace Yagrysha\MVC\Cache;
 
 class Manager {
 
-	protected static $manager=[];
+	/**
+	 * @var Base[]
+	 */
+	protected static $cache=[];
 
-	//TODO подставлять опции из конфига
-	//chache interface
+	public function init($config){
+		if(!empty($config['class'])){
+			$class = $config['class'];
+		}else{
+			$class = 'Yagrysha\\MVC\\Cache\\'.$config['type'];
+		}
+		self::$cache[$config['type']] = new $class($config['options']);
+	}
 	/**
 	 * @param string $type
-	 * @return
+	 * @return Base
 	 */
-	public static function get($type='File'){
-		if(!isset(self::$manager[$type])){
-			$type = 'Yagrysha\\MVC\\Cache\\'.$type;
-			self::$manager[$type] = new $type();
-		}
-		return self::$manager[$type];
+	public static function get($type=''){
+		if(empty($type)) $type = key(self::$cache);
+		return self::$cache[$type];
 	}
 }

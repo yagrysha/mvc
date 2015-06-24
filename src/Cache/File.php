@@ -40,18 +40,19 @@ class File {
 	}
 
 	public function setSetialize($key, $data){
-		if(is_array($key)){
-			$key=(empty($key['cacheGroup'])?'':($key['cacheGroup'].DIRECTORY_SEPARATOR)).serialize($key);
-		}
-		return $this->filePutContents($this->getFilePath($key), serialize($data));
+		return $this->filePutContents($this->getFilePath($this->genKey($key)), serialize($data));
 	}
 
 	public function getSetialize($key, $lifetime=null){
+		$ret = $this->get($this->genKey($key), $lifetime);
+		return $ret?unserialize($ret):$ret;
+	}
+
+	private function genKey($key){
 		if(is_array($key)){
 			$key=(empty($key['cacheGroup'])?'':($key['cacheGroup'].DIRECTORY_SEPARATOR)).serialize($key);
 		}
-		$ret = $this->get($key, $lifetime);
-		return $ret?unserialize($ret):$ret;
+		return $key;
 	}
 
 	public function delete($key){
@@ -114,27 +115,32 @@ class File {
 		}
 	}
 
-	public function clearEmptyDir($dir=null){
-		$dir = null==$dir?$this->options['cache_dir']:$dir;
+	public function clearEmptyDir($dir=null, $start=true){
+		if(null==$dir){
+			$dir = $this->options['cache_dir'];
+		}
 		$files = array_diff(scandir($dir), array('.','..'));
 		if($files) {
 			foreach ($files as $file) {
 				$path = "$dir/$file";
 				if (is_dir($path)) {
-					$this->clearEmptyDir($path);
+					$this->clearEmptyDir($path, false);
 				}
 			}
-		}elseif($dir!=$this->options['cache_dir']){
+		}elseif(!$start){
 			return rmdir($dir);
 		}
 	}
 
-	public function clearDir($dir){
-		return $this->delTree($this->options['cache_dir'].$dir);
+	public function deleteGroup($group){
+		return $this->clearDir($this->options['cache_dir'].$group);;
 	}
 
 	public function deleteAll(){
-		$dir = $this->options['cache_dir'];
+		$this->clearDir($this->options['cache_dir']);
+	}
+
+	public function clearDir($dir){
 		$files = array_diff(scandir($dir), array('.','..'));
 		foreach ($files as $file) {
 			(is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
@@ -148,6 +154,4 @@ class File {
 		}
 		return rmdir($dir);
 	}
-
-
 }

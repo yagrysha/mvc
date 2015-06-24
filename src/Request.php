@@ -43,6 +43,7 @@ class Request
 
 	/**
 	 * @param string $key
+	 * @param string $default
 	 * @return mixed
 	 */
 	public function get($key, $default = null)

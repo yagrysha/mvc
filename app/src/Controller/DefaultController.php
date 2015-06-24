@@ -18,8 +18,6 @@ class DefaultController extends Controller
 
 	public function indexAction()
 	{
-		/*$c= Cache::get();
-		p($c);*/
 		return [
 			'text'=>'hello/ index page'
 		];
@@ -29,6 +27,8 @@ class DefaultController extends Controller
 		if(!$this->user->isLogged()){
 			return ['_redirect'=>'login'];
 		}
+		p($this->user->getData());
+		return 'ello';
 	}
 
 	public function cachedAction(){
@@ -49,9 +49,16 @@ class DefaultController extends Controller
 		];
 	}
 
-	public function login(){
+	public function loginAction(){
+		if($this->req->isPost()){
+			$login = $this->req->get('login');
+			$this->user->login(['id'=>1,'login'=>$login, 'tt'=>time(), 'roles' => [ROLE_GUEST, 'testouser'], 'name'=>'dfg'], true);
+			return ['_redirect'=>'private'];
+		}
+
 		return [
 			'text'=>'login page'
 		];
 	}
+
 }

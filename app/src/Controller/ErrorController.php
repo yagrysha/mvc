@@ -15,10 +15,11 @@ class ErrorController extends Controller{
 	}
 
 	public function error500Action(){
-		return ['_status'=>500];
+		$exception = $this->params['data'];
+		return ['_status'=>500]+$exception->getData();
 	}
 
 	public function accessDeniedAction(){
-		return ['text'=>''];
+		return ['text'=>'vh'];
 	}
 }
