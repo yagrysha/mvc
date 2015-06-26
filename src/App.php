@@ -31,6 +31,15 @@ class App
 		'action' => 'index'
 	];
 
+/*    private static $app;
+
+    public static function get($env = 'dev'){
+        if(null===self::$app){
+            self::$app = new self($env);
+        }
+        return self::$app;
+    }*/
+
 	public function __construct($env = 'dev')
 	{
 		$this->env = $env;
@@ -74,12 +83,12 @@ class App
 
 	private function checkAccess($module, $controller)
 	{
-		if (!empty($this->conf['access'][$module][$controller])
-			&& !$this->user->hasRole($this->conf['access'][$module][$controller])
+		if (empty($this->conf['access'][$module][$controller])
+			|| $this->user->hasRole($this->conf['access'][$module][$controller])
 		) {
-			throw new Exception(Exception::TYPE_ACCESSDENIED);
+			return true;
 		}
-		return true;
+		throw new Exception(Exception::TYPE_ACCESSDENIED);
 	}
 
 	private function init()

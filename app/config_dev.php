@@ -17,14 +17,7 @@ return [
 		]
 	],
 	//доступ уровня моудуля/ контроллера
-	'access'=>[
-		''=>[
-			'default'=>[ROLE_GUEST, ROLE_USER]
-		]
-		/*'admin module'=>[
-			'admin controller'=>[ROLE_ADMIN]
-		]*/
-	],
+	'access'=>include_once APP_DIR . 'access.php',
 	'init'=>[
 		function($app){
 			//init Database

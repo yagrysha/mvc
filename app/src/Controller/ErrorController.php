@@ -11,15 +11,22 @@ class ErrorController extends Controller{
 	}
 
 	public function error404Action(){
-		return ['_status'=>404];
+        $this->status(404);
+		return [];
 	}
 
 	public function error500Action(){
 		$exception = $this->params['data'];
-		return ['_status'=>500]+$exception->getData();
+        $this->status(500);
+		return $exception->getData();
 	}
 
 	public function accessDeniedAction(){
+		if($this->user->isLogged()){
+			echo 'logged';
+		}else{
+			echo 'not logged';
+		}
 		return ['text'=>'vh'];
 	}
 }

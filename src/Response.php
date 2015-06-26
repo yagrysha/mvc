@@ -102,6 +102,14 @@ class Response
 		header('Location: ' . $uri, true, 301);
 	}
 
+    public function back($url){
+        if(!empty($_SERVER['HTTP_REFERER'])
+            && parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST)==parse_url($url, PHP_URL_HOST)){
+            $this->location($_SERVER['HTTP_REFERER']);
+        }
+        $this->location($url);
+    }
+
 	public function contentType($type)
 	{
 		$this->contentType = $type;
