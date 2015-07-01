@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Yaroslav Gryshanovich <yagrysha@gmail.com>
+ */
 
 namespace Yagrysha\MVC;
 use Yagrysha\MVC\Cache\Manager as Cache;

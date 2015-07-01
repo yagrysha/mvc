@@ -1,8 +1,9 @@
 <?php
+/**
+ * @author Yaroslav Gryshanovich <yagrysha@gmail.com>
+ */
 
 namespace Yagrysha\MVC;
-
-use Yagrysha\MVC\Exception;
 
 class TwigExtension extends \Twig_Extension
 {

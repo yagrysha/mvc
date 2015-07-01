@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Yaroslav Gryshanovich <yagrysha@gmail.com>
+ */
 
 namespace Yagrysha\MVC;
 

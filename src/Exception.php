@@ -1,4 +1,8 @@
 <?php
+/**
+ * @author Yaroslav Gryshanovich <yagrysha@gmail.com>
+ */
+
 namespace Yagrysha\MVC;
 
 class Exception extends \Exception{

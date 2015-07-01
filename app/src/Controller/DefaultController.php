@@ -73,4 +73,9 @@ class DefaultController extends Controller
         return $this->redirect('');
     }
 
+    public function cliAction(){
+        print_r($this->params);
+        print_r($GLOBALS);
+        return 'END';
+    }
 }
