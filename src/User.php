@@ -42,7 +42,7 @@ class User
     static public function getUser(Request $req)
     {
         if (null == self::$instance) {
-            self::$instance = new self($req);
+            self::$instance = new static($req);
         }
 
         return self::$instance;
