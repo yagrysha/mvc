@@ -47,7 +47,7 @@ abstract class Controller
         if (empty($res)) {
             $action = $params['action'] . 'Action';
             if (!method_exists($this, $action)) {
-                throw new Exception(Exception::TYPE_500, ['message' => 'Action not found']);
+                throw new Exception(Exception::TYPE_404, ['message' => 'Action not found']);
             }
             $res = $this->$action();
             $this->setActionCache($res);
