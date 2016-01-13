@@ -20,7 +20,6 @@ class Render
 			//'autoescape'=>false,
 			//'optimizations'=>0
 		];
-		\Twig_Autoloader::register();
 		$this->twig = new \Twig_Environment(new \Twig_Loader_Filesystem(APP_DIR . 'templates'), $options);
 		$this->twig->addExtension(new TwigExtension());
 	}

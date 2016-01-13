@@ -21,10 +21,10 @@ return [
 	'init'=>[
 		function($app){
 			//init Database
-			\Yagrysha\ORM\Db::init([
+			/*\Yagrysha\ORM\Db::init([
 				'host' => '127.0.0.1',
 				'dbname'=>'test',
-			]);
+			]);*/
 		}
 	]
 ];

@@ -26,7 +26,7 @@ class TwigExtension extends \Twig_Extension
 	public function getFunctions()
 	{
 		return [
-			'render' => new \Twig_Function_Method($this, 'render'),
+			new \Twig_SimpleFunction('render', [$this, 'render']),
 		];
 	}
 

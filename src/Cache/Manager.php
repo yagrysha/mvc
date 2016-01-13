@@ -8,7 +8,7 @@ class Manager {
 	 */
 	protected static $cache=[];
 
-	public function init($config){
+	public static function init($config){
 		if(!empty($config['class'])){
 			$class = $config['class'];
 		}else{

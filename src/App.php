@@ -59,6 +59,7 @@ class App
 
 	public function checkRoute($uri)
 	{
+		$params = [];
 		foreach ($this->conf['routing'] as $pattern => $data) {
 			if (is_callable($data)) {
 				if($params = $data($uri)) {
@@ -130,7 +131,8 @@ class App
 	public function runController($params, $cacheTime=null)
 	{
 		$params = array_merge($this->defRouteParams, $params);
-		if(CACHE_ENABLED && $cacheTime){
+		$cacheEnabled = (CACHE_ENABLED && $cacheTime);
+		if($cacheEnabled){
 			$cachekey='app/'.md5(serialize($params)).$cacheTime;
 			$cache = Cache::get();
 			$ret = $cache->get($cachekey, $cacheTime);
@@ -143,7 +145,7 @@ class App
 			throw new Exception(Exception::TYPE_404);
 		}
 		$controller = new $class($this);
-		if(CACHE_ENABLED && $cacheTime){
+		if($cacheEnabled){
 			$ret = $controller->run($params);
 			$cache->set($cachekey, $ret);
 			return $ret;
