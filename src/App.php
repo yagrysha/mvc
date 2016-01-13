@@ -34,16 +34,16 @@ class App
 		'action' => 'index'
 	];
 
-/*    private static $app;
+    private static $app;
 
     public static function get($env = 'dev'){
         if(null===self::$app){
             self::$app = new self($env);
         }
         return self::$app;
-    }*/
+    }
 
-	public function __construct($env = 'dev')
+	private function __construct($env = 'dev')
 	{
 		$this->env = $env;
 		$this->conf = require APP_DIR . 'config_' . $this->env . '.php';
