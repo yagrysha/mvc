@@ -42,7 +42,7 @@ class User
     static public function getUser(Request $req)
     {
         if (null == self::$instance) {
-            self::$instance = new self($req);
+            self::$instance = new static($req);
         }
 
         return self::$instance;
@@ -79,15 +79,23 @@ class User
 
     public function getUserDataByCode($code)
     {
-        // get user data from base by $code
-        $this->login($this->defUserData, 'newgencode');
+        // get user data from database by $code and generate new code
+        $this->login($this->defUserData);
         return $this->defUserData;
     }
 
+    /**
+     * set user date to session
+     * @param array $userData
+     * @param null|string $rememberCode
+     */
     public function login($userData, $rememberCode = null)
     {
         $this->userData = $userData;
-        $_SESSION[self::SESSIONNAME] = array_merge($_SESSION[self::SESSIONNAME], $userData);
+        if (isset($_SESSION[self::SESSIONNAME])) {
+            $userData = array_merge($_SESSION[self::SESSIONNAME], $userData);
+        }
+        $_SESSION[self::SESSIONNAME] = $userData;
         $this->isLogged = true;
         if ($rememberCode) {
             setcookie(
