@@ -1,9 +1,9 @@
 <?php
 	return [
 		''=>[
-			'default'=>[ROLE_GUEST, ROLE_USER]
+			'default'=>['guest', 'user']
 		]
 		/*'admin module'=>[
-			'admin controller'=>[ROLE_ADMIN]
+			'admin controller'=>['admin']
 		]*/
 	];

@@ -1,30 +1,48 @@
 <?php
-const HOST = 'mvc.loc';
-const ROLE_GUEST = 0;
-const ROLE_USER = 1;
-const ROLE_ADMIN = 2;
-
-const APP_NS = 'myApp';
-const CACHE_ENABLED = true;
-
 return [
-	'routing'=> include_once APP_DIR . 'routing.php',
-	'userClass' =>APP_NS.'\User',
-	'cache'=>[
-		'type'=>'File',
-		'options'=>[
-			'cache_dir' => APP_DIR.'cache/file/',
-		]
-	],
-	//доступ уровня моудуля/ контроллера
-	'access'=>include_once APP_DIR . 'access.php',
-	'init'=>[
-		function($app){
-			//init Database
-			/*\Yagrysha\ORM\Db::init([
-				'host' => '127.0.0.1',
-				'dbname'=>'test',
-			]);*/
-		}
-	]
+    'env' => 'dev',
+    'host' => 'mvc.loc',
+    'url' => 'http://mvc.loc/',
+    'root_dir' => realpath(__DIR__ . '/../'),
+    'app_dir' => __DIR__,
+    'app_ns' => 'myApp',
+    'routing' => include __DIR__ . '/routing.php',
+    'def_route' => [
+        'module' => '',
+        'controller' => 'default',
+        'action' => 'index'
+    ],
+    'user' => [
+        'class' => 'myApp\User'
+    ],
+    'cache' => [
+        'enabled' => true,
+        'type' => 'File',
+        'options' => [
+            'cache_dir' => __DIR__ . '/cache/file/',
+        ]
+    ],
+    'render'=>[
+        'type'=>'twig',
+        'options'=>[
+            'cache' => __DIR__ . '/cache/twig',
+            'debug'=>true,
+            'auto_reload'=>true,
+            'strict_variables'=>true,
+            //'autoescape'=>false,
+            //'optimizations'=>0
+        ],
+        'templates'=>__DIR__.'/templates'
+    ],
+    //доступ уровня моудуля/ контроллера
+    'access' => include __DIR__ . '/access.php',
+    'init' => [
+        function () {
+            //init Database
+            /*\Yagrysha\ORM\Db::init([
+                'host' => '127.0.0.1',
+                'dbname'=>'test',
+            ]);*/
+        }
+    ]
 ];

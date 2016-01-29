@@ -4,7 +4,7 @@ $s = microtime(1);
 //require_once '../vendor/autoload.php';
 require_once '../test/bootstrap.php';
 use Yagrysha\MVC\App;
-App::get('dev')->runController([
+App::ini(realpath(__DIR__.'/../app'),'dev')->runController([
     'action'=>'cli',
     'argv'=>$argv
 ]);

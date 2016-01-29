@@ -10,24 +10,15 @@ class Render
 	private static $instance;
 	private $twig;
 
-	private function __construct()
-	{
-		$options = [
-			'cache' => APP_DIR . 'cache/twig',
-			//'debug'=>true,
-			'auto_reload'=>true,
-			'strict_variables'=>true,
-			//'autoescape'=>false,
-			//'optimizations'=>0
-		];
-		$this->twig = new \Twig_Environment(new \Twig_Loader_Filesystem(APP_DIR . 'templates'), $options);
+	private function __construct($options){
+		$this->twig = new \Twig_Environment(new \Twig_Loader_Filesystem($options['templates']), $options['options']);
 		$this->twig->addExtension(new TwigExtension());
 	}
 
-	static function get()
+	static function get($options)
 	{
 		if (null == self::$instance) {
-			self::$instance = new self();
+			self::$instance = new self($options);
 		}
 		return self::$instance;
 	}

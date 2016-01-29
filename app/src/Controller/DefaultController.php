@@ -1,16 +1,14 @@
 <?php
 namespace myApp\Controller;
 
-use Yagrysha\MVC\Controller;
-
-class DefaultController extends Controller
+class DefaultController extends \Yagrysha\MVC\Controller
 {
     protected $cacheConfig = [
         'cached' => 100,
     ];
 
     protected $access = [
-        'private' => ROLE_USER,
+        'private' => 'user',
     ];
 
     public function indexAction()
@@ -54,22 +52,19 @@ class DefaultController extends Controller
                 'id' => 1,
                 'login' => $login,
                 'tt' => time(),
-                'roles' => [ROLE_USER, 'testouser'],
+                'roles' => ['user', 'testouser'],
                 'name' => 'dfg'
             ], true);
-
             return $this->redirect('private');
         }
-
         return [
-            'text' => 'login page'
+            'text' => 'login page#####'
         ];
     }
 
     public function logoutAction()
     {
         $this->user->logout();
-
         return $this->redirect('');
     }
 

@@ -2,7 +2,7 @@
 
 namespace Yagrysha\MVC;
 
-
+//TODO не готов
 abstract class Pager {
 
     protected $curpage = 1;

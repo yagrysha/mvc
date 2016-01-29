@@ -61,7 +61,7 @@ class TwigExtension extends \Twig_Extension
 			}
 			return $this->controller->app->runController($params, $cacheTime);
 		} catch (\Exception $e) {
-			if ('dev' == $this->controller->app->env) {
+			if ('dev' == $this->controller->app->conf['ebv']) {
 				return $e;
 			}
 			return '';

@@ -71,7 +71,7 @@ abstract class Controller
 
     protected function getActionCache()
     {
-        if (CACHE_ENABLED && !empty($this->cacheConfig[$this->params['action']])) {
+        if ($this->app->conf['cache']['enabled'] && !empty($this->cacheConfig[$this->params['action']])) {
             return CacheManager::get()->getSetialize($this->params + ['cacheGroup' => 'controller'],
                 $this->cacheConfig[$this->params['action']]);
         }
@@ -81,21 +81,21 @@ abstract class Controller
 
     protected function setActionCache($data)
     {
-        if (CACHE_ENABLED && !empty($this->cacheConfig[$this->params['action']])) {
+        if ($this->app->conf['cache']['enabled'] && !empty($this->cacheConfig[$this->params['action']])) {
             CacheManager::get()->setSetialize($this->params + ['cacheGroup' => 'controller'], $data);
         }
     }
 
     protected function redirect($uri)
     {
-        $this->app->res->location($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . ltrim($uri, '/'));
+        $this->app->res->location($this->app->conf['url'] . ltrim($uri, '/'));
 
         return '';
     }
 
     protected function back($uri)
     {
-        $this->app->res->back($_SERVER['REQUEST_SCHEME'] . '://' . HOST . '/' . ltrim($uri, '/'));
+        $this->app->res->back($this->app->conf['url'] . ltrim($uri, '/'));
 
         return '';
     }
@@ -123,6 +123,6 @@ abstract class Controller
             return $data['_content'];
         }
 
-        return Render::get()->render($this, $data);
+        return Render::get($this->app->conf['render'])->render($this, $data);
     }
 }

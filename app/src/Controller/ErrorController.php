@@ -1,11 +1,11 @@
 <?php
 namespace myApp\Controller;
-use Yagrysha\MVC\Controller;
+use Yagrysha\MVC\App;
 
-class ErrorController extends Controller{
+class ErrorController extends \Yagrysha\MVC\Controller {
 
 	protected function init(){
-		if($this->app->env=='dev'){
+		if('dev'==App::config('env')){
 			//p('dev ENV',$this->params);
 		}
 	}
@@ -25,7 +25,7 @@ class ErrorController extends Controller{
 		if($this->user->isLogged()){
 			echo 'logged';
 		}else{
-			echo 'not logged';
+			echo 'not logged!';
 		}
 		return ['text'=>'vh'];
 	}

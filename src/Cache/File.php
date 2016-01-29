@@ -133,7 +133,7 @@ class File {
 	}
 
 	public function deleteGroup($group){
-		return $this->clearDir($this->options['cache_dir'].$group);;
+		$this->clearDir($this->options['cache_dir'].$group);;
 	}
 
 	public function deleteAll(){

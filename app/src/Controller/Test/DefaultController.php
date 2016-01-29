@@ -1,9 +1,7 @@
 <?php
 namespace myApp\Controller\Test;
 
-use Yagrysha\MVC\Controller;
-
-class DefaultController extends Controller
+class DefaultController extends \Yagrysha\MVC\Controller
 {
 	public function subAction()
 	{

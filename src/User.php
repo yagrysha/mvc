@@ -15,9 +15,19 @@ class User
     private $userData;
     private $defUserData = [
         'id' => 0,
-        'roles' => [ROLE_GUEST]
+        'roles' => ['guest']
     ];
+
     private $isLogged = false;
+
+    public static function getUser(Request $req)
+    {
+        if (null == self::$instance) {
+            self::$instance = new static($req);
+        }
+
+        return self::$instance;
+    }
 
     private function __construct(Request $req)
     {
@@ -39,15 +49,6 @@ class User
         //todo проверка, привязка к ip,  обновление по времени
     }
 
-    static public function getUser(Request $req)
-    {
-        if (null == self::$instance) {
-            self::$instance = new static($req);
-        }
-
-        return self::$instance;
-    }
-
     public function setSession()
     {
         $_SESSION[self::SESSIONNAME] = $this->userData;
@@ -66,15 +67,13 @@ class User
     {
         if (is_array($role)) {
             foreach ($role as $r) {
-                if (in_array($r, $this->userData['roles'])) {
+                if (in_array($r, $this->userData['roles'], true)) {
                     return true;
                 }
             }
-
             return false;
         }
-
-        return in_array($role, $this->userData['roles']);
+        return in_array($role, $this->userData['roles'], true);
     }
 
     public function getUserDataByCode($code)
@@ -103,7 +102,7 @@ class User
                 $rememberCode,
                 time() + 86400 * self::REMEMBER_DAYS,
                 '/',
-                HOST,
+                App::config('host'),
                 false,
                 true
             );

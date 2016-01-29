@@ -25,7 +25,7 @@ class Response
 	private $contentType = 'text/html';
 	private $content;
 	private $statusCodes = array(
-		100 => 'Continue',
+		/*100 => 'Continue',
 		101 => 'Switching Protocols',
 		102 => 'Processing',
 		200 => 'OK',
@@ -46,9 +46,9 @@ class Response
 		400 => 'Bad Request',
 		401 => 'Unauthorized',
 		402 => 'Payment Required',
-		403 => 'Forbidden',
+		403 => 'Forbidden',*/
 		404 => 'Not Found',
-		405 => 'Method Not Allowed',
+		/*405 => 'Method Not Allowed',
 		406 => 'Not Acceptable',
 		407 => 'Proxy Authentication Required',
 		408 => 'Request Timeout',
@@ -64,9 +64,9 @@ class Response
 		422 => 'Unprocessable Entity',
 		423 => 'Locked',
 		424 => 'Failed Dependency',
-		426 => 'Upgrade Required',
+		426 => 'Upgrade Required',*/
 		500 => 'Internal Server Error',
-		501 => 'Not Implemented',
+		/*501 => 'Not Implemented',
 		502 => 'Bad Gateway',
 		503 => 'Service Unavailable',
 		504 => 'Gateway Timeout',
@@ -74,7 +74,7 @@ class Response
 		506 => 'Variant Also Negotiates',
 		507 => 'Insufficient Storage',
 		509 => 'Bandwidth Limit Exceeded',
-		510 => 'Not Extended'
+		510 => 'Not Extended'*/
 	);
 
 	public function type($type)
@@ -92,11 +92,8 @@ class Response
 	public function status($statusCode)
 	{
 		if ($this->statusCodes[$statusCode] !== null) {
-			header(
-				$_SERVER['SERVER_PROTOCOL'] . ' ' . $statusCode . ' ' . $this->statusCodes[$statusCode],
-				true,
-				$statusCode
-			);
+			header((isset($_SERVER['SERVER_PROTOCOL']) ?$_SERVER['SERVER_PROTOCOL']:'HTTP/1.0')
+			. ' ' . $statusCode . ' ' . $this->statusCodes[$statusCode], true, $statusCode);
 		}
 	}
 
