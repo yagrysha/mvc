@@ -115,7 +115,7 @@ class User
         unset($_COOKIE[self::REMEMBER_COOKIENAME]);
         $_SESSION[self::SESSIONNAME] = $this->defUserData;
         session_regenerate_id();
-        setcookie(self::REMEMBER_COOKIENAME, '', time() - 100000, '/', HOST, false, true);
+        setcookie(self::REMEMBER_COOKIENAME, '', time() - 100000, '/', App::config('host'), false, true);
     }
 
     public function getData()
