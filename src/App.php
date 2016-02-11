@@ -55,6 +55,7 @@ class App
     private function __construct($config)
     {
         $this->conf = $config;
+        $this->init();
         $this->req = new Request();
         $userClass = $this->conf['user']['class'] ?: 'Yagrysha\\MVC\\User';
         $this->user = $userClass::getUser($this->req);
@@ -122,7 +123,6 @@ class App
     {
         $this->res = new Response();
         try {
-            $this->init();
             $params = $this->checkRoute($this->req->getRequestUri());
             $this->checkAccess($params['module'], $params['controller']);
             $this->req->setParams($params);

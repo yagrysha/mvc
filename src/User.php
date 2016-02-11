@@ -18,7 +18,7 @@ class User
         'roles' => ['guest']
     ];
 
-    private $isLogged = false;
+    protected $isLogged = false;
 
     public static function getUser(Request $req)
     {
@@ -46,7 +46,6 @@ class User
         $this->userData['ip'] = $req->ip;
         $this->userData['tm'] = time();
         $this->setSession();
-        //todo проверка, привязка к ip,  обновление по времени
     }
 
     public function setSession()
