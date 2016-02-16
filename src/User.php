@@ -124,4 +124,8 @@ class User
     {
         return $this->userData;
     }
+
+    public function getId(){
+        return $this->userData['id'];
+    }
 }
