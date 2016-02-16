@@ -65,7 +65,7 @@ abstract class Form implements \ArrayAccess
      */
     public function getKey()
     {
-        $this->key = md5(uniqid($this->key), true);
+        $this->key = md5(uniqid($this->key, true));
         $_SESSION[$this->sessionkey] = $this->key;
         return $this->key;
     }
