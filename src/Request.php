@@ -100,6 +100,11 @@ class Request
 		return isset($_ENV[$key]) ? $_ENV[$key] : $def;
 	}
 
+	public function post($key, $def = null)
+	{
+		return isset($_POST[$key]) ? $_POST[$key] : $def;
+	}
+
 	public function setParam($key, $value)
 	{
 		$this->_params[$key] = $value;

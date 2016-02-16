@@ -28,7 +28,6 @@ class App
     public static function ini($appPath, $env)
     {
         self::$app = new self(require $appPath . '/config_' . $env . '.php');
-
         return self::$app;
     }
 
@@ -57,8 +56,10 @@ class App
         $this->conf = $config;
         $this->init();
         $this->req = new Request();
-        $userClass = $this->conf['user']['class'] ?: 'Yagrysha\\MVC\\User';
-        $this->user = $userClass::getUser($this->req);
+        if(!empty($this->conf['user']['class'])) {
+            $userClass = $this->conf['user']['class'];
+            $this->user = $userClass::getUser($this->req);
+        }
     }
 
     public function setRequest(Request $request)
@@ -144,9 +145,9 @@ class App
         $params = array_merge($this->conf['def_route'], $params);
         $cacheEnabled = ($cacheTime && $this->conf['cache']['enabled']);
         if ($cacheEnabled) {
-            $cachekey = 'app/' . md5(serialize($params)) . $cacheTime;
+            $cacheKey = 'app/' . md5(serialize($params)) . $cacheTime;
             $cache = Cache::get();
-            $ret = $cache->get($cachekey, $cacheTime);
+            $ret = $cache->get($cacheKey, $cacheTime);
             if ($ret) {
                 return $ret;
             }
@@ -160,7 +161,7 @@ class App
         $controller = new $class($this);
         if ($cacheEnabled) {
             $ret = $controller->run($params);
-            $cache->set($cachekey, $ret);
+            $cache->set($cacheKey, $ret);
             return $ret;
         }
 

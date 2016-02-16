@@ -9,10 +9,10 @@ class Manager {
 	protected static $cache=[];
 
 	public static function init($config){
-		if(!empty($config['class'])){
-			$class = $config['class'];
-		}else{
+		if(empty($config['class'])){
 			$class = 'Yagrysha\\MVC\\Cache\\'.$config['type'];
+		}else{
+			$class = $config['class'];
 		}
 		self::$cache[$config['type']] = new $class($config['options']);
 	}
@@ -21,7 +21,9 @@ class Manager {
 	 * @return Base
 	 */
 	public static function get($type=''){
-		if(empty($type)) $type = key(self::$cache);
+		if(empty($type)) {
+			$type = key(self::$cache);
+		}
 		return self::$cache[$type];
 	}
 }

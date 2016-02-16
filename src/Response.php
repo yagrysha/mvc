@@ -19,9 +19,7 @@ class Response
 		self::TYPE_JSON => 'application/json',
 	];
 
-	private $headers = [
-		'X-Powered-By: PHP/mvc'
-	];
+	protected $headers = [];
 	private $contentType = 'text/html';
 	private $content;
 	private $statusCodes = array(
@@ -104,7 +102,7 @@ class Response
 
     public function back($url){
         if(!empty($_SERVER['HTTP_REFERER'])
-            && parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST)==parse_url($url, PHP_URL_HOST)){
+            && parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST) == parse_url($url, PHP_URL_HOST)){
             $this->location($_SERVER['HTTP_REFERER']);
         }
         $this->location($url);
@@ -130,8 +128,8 @@ class Response
 
 	public function setCacheHeader($time){
 		$this->headers[] = 'Cache-Control: max-age='.$time.', public';
-		//$this->headers[] = 'Last-Modified: '. gmdate("D, d M Y H:i:s ").'GMT';
-		//$this->headers[] = 'Expires: '. gmdate("D, d M Y H:i:s ", time() + $time).'GMT';
+		$this->headers[] = 'Last-Modified: '. gmdate("D, d M Y H:i:s ").'GMT';
+		$this->headers[] = 'Expires: '. gmdate("D, d M Y H:i:s ", time() + $time).'GMT';
 	}
 
 	public function setAlwaysModified()

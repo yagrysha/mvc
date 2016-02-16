@@ -31,17 +31,19 @@ class User
 
     private function __construct(Request $req)
     {
-        $user = $req->session(self::SESSIONNAME);
+        $user = $req->session(static::SESSIONNAME);
         if ($user) {
             $this->userData = $user;
         } else {
-            $remembercode = $req->cookie(self::REMEMBER_COOKIENAME);
-            if ($remembercode) {
-                $this->userData = $this->getUserDataByCode($remembercode);
+            $code = $req->cookie(static::REMEMBER_COOKIENAME);
+            if ($code) {
+                $this->userData = $this->getUserDataByCode($code);
             }
         }
-        if (!$this->userData) {
+        if (empty($this->userData['id'])) {
             $this->userData = $this->defUserData;
+        }else{
+            $this->isLogged = true;
         }
         $this->userData['ip'] = $req->ip;
         $this->userData['tm'] = time();
@@ -50,7 +52,7 @@ class User
 
     public function setSession()
     {
-        $_SESSION[self::SESSIONNAME] = $this->userData;
+        $_SESSION[static::SESSIONNAME] = $this->userData;
     }
 
     public function isLogged()
@@ -89,17 +91,18 @@ class User
      */
     public function login($userData, $rememberCode = null)
     {
+        session_regenerate_id();
         $this->userData = $userData;
-        if (isset($_SESSION[self::SESSIONNAME])) {
-            $userData = array_merge($_SESSION[self::SESSIONNAME], $userData);
+        if (isset($_SESSION[static::SESSIONNAME])) {
+            $userData = array_merge($_SESSION[static::SESSIONNAME], $userData);
         }
-        $_SESSION[self::SESSIONNAME] = $userData;
+        $_SESSION[static::SESSIONNAME] = $userData;
         $this->isLogged = true;
         if ($rememberCode) {
             setcookie(
-                self::REMEMBER_COOKIENAME,
+                static::REMEMBER_COOKIENAME,
                 $rememberCode,
-                time() + 86400 * self::REMEMBER_DAYS,
+                time() + 86400 * static::REMEMBER_DAYS,
                 '/',
                 App::config('host'),
                 false,
@@ -110,11 +113,11 @@ class User
 
     public function logout()
     {
-        $this->isLogged = false;
-        unset($_COOKIE[self::REMEMBER_COOKIENAME]);
-        $_SESSION[self::SESSIONNAME] = $this->defUserData;
         session_regenerate_id();
-        setcookie(self::REMEMBER_COOKIENAME, '', time() - 100000, '/', App::config('host'), false, true);
+        $this->isLogged = false;
+        unset($_COOKIE[static::REMEMBER_COOKIENAME]);
+        $_SESSION[static::SESSIONNAME] = $this->defUserData;
+        setcookie(static::REMEMBER_COOKIENAME, '', time() - 100000, '/', App::config('host'), false, true);
     }
 
     public function getData()

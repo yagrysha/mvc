@@ -115,7 +115,6 @@ abstract class Controller
             $this->app->res->type($data['_type']);
             if (Response::TYPE_JSON == $data['_type']) {
                 unset($data['_type']);
-
                 return json_encode($data);
             }
         }

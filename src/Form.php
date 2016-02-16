@@ -5,16 +5,13 @@
  */
 
 namespace Yagrysha\MVC;
-//TODO не готов
-abstract class Form implements \ArrayAccess {
 
-    /**
-     * POST TODO Request object
-     * @var array
-     */
+abstract class Form implements \ArrayAccess
+{
+
     protected $request;
     /**
-     * можно задать дефолтные значения
+     * form fields
      * @var array
      */
     protected $fields;
@@ -24,92 +21,103 @@ abstract class Form implements \ArrayAccess {
      */
     protected $error;
     protected $key;
-    protected $sessionkey=__CLASS__;
+    protected $sessionkey = __CLASS__;
     /** @link http://ar2.php.net/manual/ru/filter.filters.php
-     *@var array [$name, $flag, $options, $message]
+     * @var array [$name, $flag, $options, $message]
      */
     protected $filters;
-    const FIFNE='notempty';//FLAG apply filter if fileld not empty
-    const FIFEM='ifempty';//FLAG if empty
+    protected $csrf = true;
+    protected $csrf_message = 'Wrong form key';
+    const F_IF_NOTEMPTY = 'notempty';//FLAG apply filter if field not empty
+    const F_IF_EMPTY = 'ifempty';//FLAG if empty
+    const F_METHOD = 'method';//FLAG method
 
-    protected $item;//deffields
+    protected $item; //defaults
 
     /**
      *
-     * @param array $deffields дефолтные значения полей
+     * @param array $default дефолтные значения полей
      */
-    public function __construct($deffields=null) {
-        $this->request=$_POST;
-        $this->filters=$this->filters();
-        $this->item = $deffields;
-        if(!empty($deffields)){
-            $this->setdeffields($deffields);
+    public function __construct($default = null)
+    {
+        $this->filters = $this->filters();
+        $this->item = $default;
+        if (!empty($default)) {
+            $this->setDefaults($default);
         }
     }
 
     /**
-     * @param ArrayAccess|array $deffields
+     * @param ArrayAccess|array $defaults
      */
-    protected function setdeffields($deffields){
+    protected function setDefaults(array $defaults)
+    {
         $keys = array_keys($this->fields);
-        foreach($keys as $k){
-            if(isset($deffields[$k]))
-                $this->fields[$k]=$deffields[$k];
+        foreach ($keys as $k) {
+            if (isset($defaults[$k])){
+                $this->fields[$k] = $defaults[$k];
+            }
         }
     }
 
     /**
      * @return string
      */
-    public function getKey(){
-        $this->key=md5(uniqid($this->key));
-        $_SESSION[$this->sessionkey] =  $this->key;
+    public function getKey()
+    {
+        $this->key = md5(uniqid($this->key), true);
+        $_SESSION[$this->sessionkey] = $this->key;
         return $this->key;
     }
 
     /**
      * проверяет вхоные данные, выполняет действие
-     * @return boolean
+     * @param $request
+     * @return bool
      */
-    public function process(){
-        if(empty($this->request['formkey'])
-            || $this->request['formkey']!=$_SESSION[$this->sessionkey]){
-            $this->error = 'Wrong form key';
+    public function process($request)
+    {
+        $this->request = $request;
+        if ($this->csrf
+            && empty($this->request['formkey'])
+            || $this->request['formkey'] != $_SESSION[$this->sessionkey]
+        ) {
+            $this->error = $this->csrf_message;
             return false;
         }
         $this->setFieldsFromRequest();
-
         $filters = $this->getFilters();
         if (!empty($filters)) {
             foreach ($filters as $filter) {
-                if (!$this->applyFilter($filter)) return false;
+                if (!$this->applyFilter($filter)) {
+                    return false;
+                }
             }
         }
-        if(!$this->checkRequest()){
+        if (!$this->checkRequest()) {
             return false;
         }
         return $this->doAction();
     }
 
-    /**
-     * проверка request
-     */
-    protected function checkRequest(){
+    protected function checkRequest()
+    {
         return true;
     }
-    protected function filters(){
+
+    protected function filters()
+    {
         return $this->filters;
     }
-    /**
-     * действия формы
-     */
+
     abstract protected function doAction();
 
     /**
      * return is empty error message
      * @return bool
      */
-    public function hasError() {
+    public function hasError()
+    {
         return !empty($this->error);
     }
 
@@ -117,7 +125,8 @@ abstract class Form implements \ArrayAccess {
      * get error message
      * @return string
      */
-    public function getError() {
+    public function getError()
+    {
         return $this->error;
     }
 
@@ -125,17 +134,19 @@ abstract class Form implements \ArrayAccess {
      * параметры формы
      * @return array
      */
-    public function getFields(){
+    public function getFields()
+    {
         return $this->fields;
     }
 
     /**
      *
      */
-    protected function setFieldsFromRequest(){
-        foreach ($this->fields as $k=>$v){
-            if(isset($this->request[$k])){
-                $this->fields[$k]=$this->request[$k];
+    protected function setFieldsFromRequest()
+    {
+        foreach ($this->fields as $k => $v) {
+            if (isset($this->request[$k])) {
+                $this->fields[$k] = $this->request[$k];
             }
         }
     }
@@ -144,8 +155,9 @@ abstract class Form implements \ArrayAccess {
      * @param $name
      * @param $value
      */
-    public function setField($name,$value){
-        $this->fields[$name]=$value;
+    public function setField($name, $value)
+    {
+        $this->fields[$name] = $value;
     }
 
 
@@ -172,7 +184,7 @@ abstract class Form implements \ArrayAccess {
      */
     public function offsetGet($offset)
     {
-        return isset($this->fields[$offset])?$this->fields[$offset]:null;
+        return isset($this->fields[$offset]) ? $this->fields[$offset] : null;
     }
 
     /**
@@ -189,8 +201,8 @@ abstract class Form implements \ArrayAccess {
      */
     public function offsetSet($offset, $value)
     {
-        if(isset($this->fields[$offset]))
-            $this->fields[$offset]=$value;
+        if (isset($this->fields[$offset]))
+            $this->fields[$offset] = $value;
     }
 
     /**
@@ -215,34 +227,33 @@ abstract class Form implements \ArrayAccess {
     protected function applyFilter($filter)
     {
         @list($name, $flag, $options, $message) = $filter;
-        if($name=='*'){
+        if ($name == '*') {
             $name = array_keys($this->fields);
         }
         if (is_array($name)) {
             foreach ($name as $n) {
-                $ret = $this->applyFilter([$n, $flag, $options, $message]);
-                if (!$ret) {
-                    return false;
-                }
+                return $this->applyFilter([$n, $flag, $options, $message]);
             }
         } elseif (is_array($flag)) {
             foreach ($flag as $f) {
-                if($f==self::FIFNE){
-                    if(empty($this->fields[$name])) return true;
-                    continue;
-                }
-                $ret = $this->applyFilter([$name, $f, $options, $message]);
-                if (!$ret) {
-                    return false;
-                }
+                return $this->applyFilter([$name, $f, $options, $message]);
             }
-        }elseif($flag==self::FIFEM){
-            if(empty($this->fields[$name])){
-                $this->error = !empty($message)?$message:$options;
+        } elseif (self::F_IF_EMPTY == $flag) {
+            if (empty($this->fields[$name])) {
+                $this->error = empty($message) ? $options : $message;
+                return false;
+            }
+        } elseif (self::F_IF_NOTEMPTY == $flag) {
+            if (!empty($this->fields[$name])) {
+                $this->error = empty($message) ? $options : $message;
                 return false;
             }
         } else {
-            $var = filter_var($this->fields[$name], $flag, $options);
+            if (self::F_METHOD == $flag) {
+                $var = $this->$options($this->fields[$name]);
+            } else {
+                $var = filter_var($this->fields[$name], $flag, $options);
+            }
             if ($var === false && !empty($message)) {
                 $this->error = $message;
                 return false;
