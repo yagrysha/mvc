@@ -50,7 +50,7 @@ abstract class Form implements \ArrayAccess
     /**
      * @param ArrayAccess|array $defaults
      */
-    protected function setDefaults(array $defaults)
+    protected function setDefaults($defaults)
     {
         $keys = array_keys($this->fields);
         foreach ($keys as $k) {
