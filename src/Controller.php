@@ -45,7 +45,7 @@ abstract class Controller
         $this->checkAccess();
         $res = $this->getActionCache();
         if (empty($res)) {
-            $action = $params['action'] . 'Action';
+            $action = $this->params['action'] . 'Action';
             if (!method_exists($this, $action)) {
                 throw new Exception(Exception::TYPE_404, ['message' => 'Action not found']);
             }
